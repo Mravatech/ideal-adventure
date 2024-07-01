@@ -1,0 +1,52 @@
+version: '3.8'
+services:
+  script1:
+    build: .
+    container_name: script1
+    command: php /app/script1.php
+    volumes:
+      - .:/app
+
+  script2_0:
+    build: .
+    container_name: script2_0
+    command: ["sh", "-c", "/usr/local/bin/wait-for-it.sh /app/script1_complete && php /app/script2.php"]
+    environment:
+      - URL_INDEX=0
+    volumes:
+      - .:/app
+    depends_on:
+      - script1
+
+  script2_1:
+    build: .
+    container_name: script2_1
+    command: ["sh", "-c", "/usr/local/bin/wait-for-it.sh /app/script1_complete && php /app/script2.php"]
+    environment:
+      - URL_INDEX=1
+    volumes:
+      - .:/app
+    depends_on:
+      - script1
+
+  script2_2:
+    build: .
+    container_name: script2_2
+    command: ["sh", "-c", "/usr/local/bin/wait-for-it.sh /app/script1_complete && php /app/script2.php"]
+    environment:
+      - URL_INDEX=2
+    volumes:
+      - .:/app
+    depends_on:
+      - script1
+
+  script3:
+    build: .
+    container_name: script3
+    command: ["sh", "-c", "/usr/local/bin/wait-for-it.sh /app/script2_0_complete && /usr/local/bin/wait-for-it.sh /app/script2_1_complete && /usr/local/bin/wait-for-it.sh /app/script2_2_complete && php /app/script3.php"]
+    volumes:
+      - .:/app
+    depends_on:
+      - script2_0
+      - script2_1
+      - script2_2
